@@ -1,28 +1,54 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div>
+    App.vue
+    <list />
+    <router-view></router-view>
+    <world @clicked="handle"></world>
+    子组件被点击后的结果：{{ message }}
+    <button @click="getMsg">get请求</button>
+    <ol>
+      <li v-for="(item, index) in getData" :key="index">{{ item.title }}</li>
+    </ol>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
-
+import List from "./components/List";
+import World from "./components/HelloWorld";
+import axios from "axios";
+import Vue from "vue";
+Vue.prototype.$http = axios;
 export default {
-  name: "app",
+  data() {
+    return {
+      getData: [],
+      message: ''
+    };
+  },
   components: {
-    HelloWorld
+    list: List,
+    world: World
+  },
+  methods: {
+    getMsg() {
+      this.$http
+        .get("https://cnodejs.org/api/v1/topics", {
+          params: {
+            page: 1,
+            limit: 10
+          }
+        })
+        .then(res => {
+          this.getData = res.data.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    handle(value){
+      this.message = value
+    }
   }
 };
 </script>
-
-<style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style scoped></style>
